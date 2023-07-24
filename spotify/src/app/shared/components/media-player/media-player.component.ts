@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { TrackModel } from '@core/models/tracks.model';
 import { MultimediaService } from '@shared/services/multimedia.service';
 import { Subscription } from 'rxjs';
@@ -9,36 +9,31 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./media-player.component.css']
 })
 export class MediaPlayerComponent implements OnInit, OnDestroy {
-  mockCover: TrackModel = {
-    url: 'http://localhost.track.mp3',
-    cover : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMihH16xKvVywz8T3mxmeABgKj4EOZ35iWkA&usqp=CAU',
-    album : 'Audio Amnesia',
-    name : 'Peleemos',
-    duration: 3,
-    _id: 1
-  }
-  listObservers$: Array<Subscription>=[]
+  @ViewChild('progressBar') progressBar: ElementRef = new ElementRef('')
+  listObservers$: Array<Subscription> = []
+  state: string = 'paused'
+  constructor(public multimediaService: MultimediaService) { }
 
-  constructor(private multimediaService: MultimediaService){}
+  ngOnInit(): void {
 
-  ngOnInit (): void{
-
-    const Observable1$ = this.multimediaService.myObservable1$
-    .subscribe(
-      {
-        next:(responseOk)=>{
-          console.log('Todo OK')
-        },
-        error:(error)=>{
-          console.log('Todo mal')
-        }
-      }
-    )
-
+    const observer1$ = this.multimediaService.playerStatus$
+      .subscribe(status => this.state = status)
+    this.listObservers$ = [observer1$]
   }
 
   ngOnDestroy(): void {
     this.listObservers$.forEach(u => u.unsubscribe())
+  }
+
+  handlePosition(event: MouseEvent): void {
+    const elNative: HTMLElement = this.progressBar.nativeElement
+    const { clientX } = event
+    const { x, width } = elNative.getBoundingClientRect()
+    const clickX = clientX - x //TODO: 1050 - x
+    const percentageFromX = (clickX * 100) / width
+    console.log(`Click(x): ${percentageFromX}`);
+    this.multimediaService.seekAudio(percentageFromX)
+
   }
 
 }
