@@ -1,6 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { TrackModel } from '@core/models/tracks.model';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { TrackModel } from './../../core/models/tracks.model';
+import { BehaviorSubject, Observable, Observer, Subject } from 'rxjs';
+
 
 @Injectable({
   providedIn: 'root'
@@ -8,44 +9,47 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 export class MultimediaService {
   callback: EventEmitter<any> = new EventEmitter<any>()
 
-  public trackInfo$:BehaviorSubject<any> = new BehaviorSubject<any>(undefined)
-  public audio!:HTMLAudioElement
-  public timeElapsed$: BehaviorSubject<string> = new BehaviorSubject<string>('00:00')
-  public timeRemaining$: BehaviorSubject<string> = new BehaviorSubject<string>('-00:00')
-  public playerStatus$: BehaviorSubject<string> = new BehaviorSubject<string>('Paused')
-  public playerPercentage$: BehaviorSubject<number> = new BehaviorSubject<number>(0)
+  public trackInfo$: BehaviorSubject<any> = new BehaviorSubject(undefined)
+  public audio!: HTMLAudioElement 
+  public timeElapsed$: BehaviorSubject<string> = new BehaviorSubject('00:00')
+  public timeRemaining$: BehaviorSubject<string> = new BehaviorSubject('-00:00')
+  public playerStatus$: BehaviorSubject<string> = new BehaviorSubject('paused')
+  public playerPercentage$: BehaviorSubject<number> = new BehaviorSubject(0)
 
   constructor() {
+
     this.audio = new Audio()
-    this.trackInfo$.subscribe(ResponseOk => {
-      if(ResponseOk){
-        console.log('un mensaje',ResponseOk)
-        this.setAudio(ResponseOk)
-    }
+
+    this.trackInfo$.subscribe(responseOK => {
+      if (responseOK) {
+        console.log('un mensaje',responseOK)
+        this.setAudio(responseOK)
+      }
     })
+
     this.listenAllEvents()
 
-   }
+  }
 
-   private listenAllEvents():void{
+  private listenAllEvents():void{
 
-      this.audio.addEventListener('timeUpdate',this.calculateTime,false)
-      this.audio.addEventListener('playing',this.setPlayerStatus,false)
-      this.audio.addEventListener('play',this.setPlayerStatus,false)
-      this.audio.addEventListener('pause',this.setPlayerStatus,false)
-      this.audio.addEventListener('ended',this.setPlayerStatus,false)
+    this.audio.addEventListener('timeupdate', this.calculateTime, false)
+    this.audio.addEventListener('playing', this.setPlayerStatus, false)
+    this.audio.addEventListener('play', this.setPlayerStatus, false)
+    this.audio.addEventListener('pause', this.setPlayerStatus, false)
+    this.audio.addEventListener('ended', this.setPlayerStatus, false)
 
-   }
+  }
 
-   private calculateTime = () => {
-      console.log('Disparando evento')
-      const {duration, currentTime} = this.audio
-      console.table([duration, currentTime])
-      this.setTimeElapsed(currentTime)
-      this.setRemaining(currentTime,duration)
-   }
+  private calculateTime = () => {
+    console.log('Disparando evento')
+    const {duration, currentTime} = this.audio
+    this.setTimeElapsed(currentTime)
+    this.setRemaining(currentTime,duration)
+    this.setPercentage(currentTime,duration)
+  }
 
-   private setPlayerStatus = (state: any) => {
+  private setPlayerStatus = (state: any) => {
     switch (state.type) { //TODO: --> playing
       case 'play':
         this.playerStatus$.next('play')
@@ -63,44 +67,43 @@ export class MultimediaService {
 
   }
 
-   private setTimeElapsed(currentTime: number): void {
+  private setTimeElapsed(currentTime: number): void {
 
     let seconds = Math.floor(currentTime % 60)
-    let minutes = Math.floor(currentTime / 60 % 60)
+    let minutes = Math.floor((currentTime / 60) % 60)
 
     const displaySeconds = (seconds < 10) ? `0${seconds}` : seconds;
     const displayMinutes = (minutes < 10) ? `0${minutes}` : minutes;
+    const displayFormat = `${displayMinutes}:${displaySeconds}`
+    this.timeElapsed$.next(displayFormat)
+  }
 
-    const diplayFormat = `${displayMinutes}:${displaySeconds}`
-    this.timeElapsed$.next(diplayFormat)
-   }
-
-   private setRemaining(currentTime: number, duration: number ):void{
+  private setRemaining(currentTime: number, duration: number): void {
     let timeLeft = duration - currentTime;
     let seconds = Math.floor(timeLeft % 60)
-    let minutes = Math.floor(timeLeft / 60 % 60)
-
+    let minutes = Math.floor((timeLeft / 60) % 60)
     const displaySeconds = (seconds < 10) ? `0${seconds}` : seconds;
     const displayMinutes = (minutes < 10) ? `0${minutes}` : minutes;
-    const diplayFormat = `-${displayMinutes}:${displaySeconds}`
-    this.timeRemaining$.next(diplayFormat)
-   }
+    const displayFormat = `-${displayMinutes}:${displaySeconds}`
+    this.timeRemaining$.next(displayFormat)
+  }
 
-   private setPercentage(currentTime: number, duration: number): void {
+  private setPercentage(currentTime: number, duration: number): void {
     //TODO duration ---> 100%
     //TODO currentTime ---> (x)
     //TODO (currentTime * 100) / duration
     let percentage = (currentTime * 100) / duration;
     this.playerPercentage$.next(percentage)
   }
+  //TODO: Funciones publicas
 
-   public setAudio(track:TrackModel):void{
-    console.log('un mensaje',track)
+  public setAudio(track: TrackModel): void {
+    console.log('un mensaje',track);
     this.audio.src = track.url
     this.audio.play()
-   }
+  }
 
-   public togglePlayer(): void {
+  public togglePlayer(): void {
     (this.audio.paused) ? this.audio.play() : this.audio.pause()
   }
 
