@@ -1,9 +1,9 @@
 import { Component, Input, OnInit, Pipe, PipeTransform } from '@angular/core';
+import { NgForm } from '@angular/forms';
 
 import { TrackModel } from '@core/models/tracks.model';
 import { AdminPageComponent } from '@modules/admin/pages/admin-page/admin-page/admin-page.component';
 import { AdminService } from '@modules/admin/services/admin.service';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-add-edit',
@@ -15,40 +15,71 @@ export class AddEditComponent implements OnInit {
   @Input() tracks: any[]=[]
   tracksTrending: Array<TrackModel> = []
   
+  Tracks = null as any;
+  trackToUpdate = {
+    name:"",
+    album:"",
+    cover:"",
+    artist:"",
+    durationStart:"",
+    durationEnd:"",
+    url:"",
+    userEmail:"",
+    uid:"",
+  }
+
   constructor(private adminService: AdminService, private  adminpage: AdminPageComponent){}
 
   ngOnInit(): void{
-    //console.log('ok loadDataAll cargo')
-    //this.loadDataAll()
+
   }
 
-  //loadDataAll(): void{
-    
-    //this.adminService.getAllTracks$().subscribe((responseOk)=>{
+  addNewTrack(newTrackForm: NgForm) {
+      this.adminService.addTrack$(newTrackForm.value).subscribe({
+        next: (responseOk) => {
+          console.log(responseOk);
+          newTrackForm.reset();
+          this.adminpage.loadDataAll();
+        },
+        error:(err) => {
+          console.log('Falló el ingreso');
+        },
+        complete: () => console.info('Ingreso correcto') 
+    });
+  }
 
-   // })
+  deleteTrack(id: number) {
+    console.log('ok loadDataAll cargo')
+    this.adminService.deleteTrack$(id).subscribe({
+      next: (responseOk) => {
+        console.log(responseOk)
+        this.adminpage.loadDataAll();
+      },
+      error: console.log,
+    });
+  }
+
+  editTrack(track: any){
+    console.log('Llegamos al edit',track)
+    this.trackToUpdate = track;
+  }
+
+  updateTrack(){
+    console.log(this.trackToUpdate);
+    this.adminService.updateTrack$(this.trackToUpdate).subscribe({
+      next:(responseOk) => {
+        console.log(responseOk,this.trackToUpdate);
+      },
+      error:(err) => {
+        console.log(err);
+      }
+    });
+  }
 
 
+  ngOnDestroy(): void {
 
-//}
-deleteTrack(id: number) {
-  console.log('ok loadDataAll cargo')
-  this.adminService.deleteTrack$(id).subscribe({
-    next: (responseOk) => {
-      this.adminpage.loadDataAll();
-    },
-    error: console.log,
-  });
-}
-
-editTrack(item: any) {
-  console.log('Llegamos al edit')
-}
-
-
-ngOnDestroy(): void {
-
-}
+  }
 
 
 }

@@ -20,15 +20,15 @@ export class AdminService {
   }
 
   addTrack$(data: any): Observable<any> {
-    return this.http.post('https://backend-spotify-bootcamps-tribe.onrender.com/api/1.0/tracks', data);
+    return this.http.post('https://backend-spotify-bootcamps-tribe.onrender.com/api/1.0/tracks/add', data);
   }
 
-  updateTrack$(id: number, data: any): Observable<any> {
-    return this.http.put(`https://backend-spotify-bootcamps-tribe.onrender.com/api/1.0/tracks/${id}`, data);
+  updateTrack$(data: any): Observable<any> {
+    return this.http.put(`https://backend-spotify-bootcamps-tribe.onrender.com/api/1.0/tracks/edit/${data.uid}`, data);
   }
 
   deleteTrack$(id: number): Observable<any> {
-    return this.http.delete(`https://backend-spotify-bootcamps-tribe.onrender.com/api/1.0/tracks/${id}`);
+    return this.http.delete(`https://backend-spotify-bootcamps-tribe.onrender.com/api/1.0/tracks/delete/${id}`);
   }
 
 

@@ -5,6 +5,7 @@ import { AdminRoutingModule } from './admin-routing.module';
 import { AddEditComponent } from './components/add-edit/add-edit.component';
 import { AdminPageComponent } from './pages/admin-page/admin-page/admin-page.component';
 import { SharedModule } from '@shared/shared.module';
+import { FormsModule } from '@angular/forms';
 
 
 
@@ -16,7 +17,8 @@ import { SharedModule } from '@shared/shared.module';
   imports: [
     CommonModule,
     AdminRoutingModule,
-    SharedModule
+    SharedModule,
+    FormsModule
   ]
 })
 export class AdminModule { }
