@@ -2,11 +2,22 @@
     <div class="content" style="align-items: center;">
       <h1>Módulo de administración</h1>
     </div>
-  
-    <div class="content" style="padding: 20px;">
-      <form #newTrackForm="ngForm" (ngSubmit)="addNewTrack(newTrackForm)">
+    <div class="row">
+        <button [hidden]="this.visibleForm" color="warn" (click)="insert()">
+            <li><i class="uil uil-pen">Insertar</i></li>
+        </button>
+    </div>
+    <br>
+    <div [hidden]="!this.visibleForm" class="content" style="padding: 20px;">
         <div class="row">
-            <div class="form-group">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="visibleForm = false;">
+                <span aria-hidden="true">&times;</span>
+              </button>
+        </div>
+        <br>
+      <form #newTrackForm="ngForm" (ngSubmit)="trackToUpdate.uid !=='' ? updateTrack() : addNewTrack(newTrackForm)">
+        <div  class="row">
+            <div [hidden]="trackToUpdate.uid !==''? true : false"  class="form-group">
                 <label for="uid">UID: </label>
                 <input type="text" disabled #uid [(ngModel)]="trackToUpdate.uid" name="uid" id="uid"
                 class="form-control" placeholder="">
@@ -67,7 +78,7 @@
         <br>
         <div class="row">
             <div class="action">
-                <input type="submit" value="Ingresar" class="btn btn-primary w-100">
+                <input type="submit" [value]="trackToUpdate.uid ==='' ? 'Ingresar' : 'Actualizar'" class="btn btn-primary w-100" (click)="visibleForm = false;">
             </div>
         </div>
       </form>
@@ -105,6 +116,10 @@
             </li>
 
         </ul>
+        <br>
+        <br>
+        <br>
+        <br>
     </div>
 
         <!--template del cover-->
@@ -122,73 +137,3 @@
 </div>
 
 
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-  aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Update Student</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form #updateForm="ngForm" (ngSubmit)="updateTrack()">
-            <br>
-            <div class="row">
-                <div class="form-group">
-                    <label for="name">Nombre de la canción: </label>
-                    <input type="text" #name  [(ngModel)]="trackToUpdate.name" name="name" id="name"
-                    class="form-control" placeholder="Nombre de la canción">
-                </div>
-                <div class="form-group">
-                    <label for="album">Nombre del album: </label>
-                    <input type="text" #album [(ngModel)]="trackToUpdate.album" name="album" id="album" class="form-control"
-                    placeholder="Nombre del album">
-                </div>
-                <div class="form-group">
-                    <label for="cover">Cover del album: </label>
-                    <input type="text" #cover [(ngModel)]="trackToUpdate.cover" name="cover" id="cover" class="form-control"
-                    placeholder="Cover del album">
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="form-group">
-                    <label for="artist">Nombre del artista: </label>
-                    <input type="text" #artist [(ngModel)]="trackToUpdate.artist" name="artist" id="artist"
-                    class="form-control" placeholder="Nombre del artista">
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="form-group">
-                    <label for="durationStart">Inicio: </label>
-                    <input type="number" #durationStart [(ngModel)]="trackToUpdate.durationStart" name="durationStart" id="durationStart"
-                    class="form-control" placeholder="Inicio en segundos">
-                </div>
-                <div class="form-group">
-                    <label for="durationEnd">Fin: </label>
-                    <input type="number" #durationEnd [(ngModel)]="trackToUpdate.durationEnd" name="durationEnd" id="durationEnd"
-                    class="form-control" placeholder="Fin en segundos">
-                </div>
-                <div class="form-group">
-                    <label for="url">URL: </label>
-                    <input type="text" #url  [(ngModel)]="trackToUpdate.url" name="url" id="url"
-                    class="form-control" placeholder="URL">
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="action">
-                    <input type="submit" value="Actualizar" class="btn btn-primary w-100">
-                </div>
-            </div>
-            <br>
-            <br>
-            <br>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
